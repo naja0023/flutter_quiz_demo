@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_welcome/di/get_it.dart';
 import 'package:flutter_welcome/screen/question_screen/provider/question_provider.dart';
 import 'package:flutter_welcome/screen/root_screen/provider/root_provider.dart';
@@ -20,8 +23,10 @@ class QuizApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<RootProvider>(create: (context) => RootProvider()),
-        ChangeNotifierProvider<QuestionProvider>(create: (context) => QuestionProvider()),
+        ChangeNotifierProvider<RootProvider>(
+            create: (context) => RootProvider()),
+        ChangeNotifierProvider<QuestionProvider>(
+            create: (context) => QuestionProvider()),
       ],
       child: MaterialApp(
         navigatorKey: getIt<NavigationService>().navigatorKey,

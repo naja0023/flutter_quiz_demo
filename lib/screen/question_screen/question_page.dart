@@ -6,6 +6,8 @@ import 'package:flutter_welcome/screen/question_screen/provider/question_provide
 import 'package:flutter_welcome/screen/root_screen/provider/root_provider.dart';
 import 'package:provider/provider.dart';
 
+import '../../utils/back_to_home_button.dart';
+
 class QuestionPage extends StatefulWidget {
   static PageRoute route() {
     return MaterialPageRoute(builder: (context) => QuestionPage());
@@ -22,7 +24,6 @@ class _QuestionPageState extends State<QuestionPage> {
   StreamController? timeCounter;
   @override
   Widget build(BuildContext context) {
-    _timeConter();
     return PopScope(
       canPop: false,
       child:
@@ -51,9 +52,23 @@ class _QuestionPageState extends State<QuestionPage> {
                   .onReqQuestion(providers.sessionId),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return const Text('error');
+                  return const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '⚠️ Can not get question!!!',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.redAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      BackToHomeButton(),
+                    ],
+                  );
                 }
                 if (snapshot.connectionState == ConnectionState.done) {
+                  _timeConter();
                   if (snapshot.data != null) {
                     return Column(
                       children: [
@@ -143,92 +158,85 @@ class _QuestionPageState extends State<QuestionPage> {
                                     .summaryQuestion(providers.sessionId),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasError) {
-                                    return const Text(
-                                      '⚠️ Error occurred!',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.redAccent,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    return const Column(
+                                      children: [
+                                        Text(
+                                          '⚠️ Can not summary data!!!',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.redAccent,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        BackToHomeButton(),
+                                      ],
                                     );
                                   }
                                   if (snapshot.connectionState ==
                                       ConnectionState.done) {
-                                    if (snapshot.data != null) {
-                                      var _summary = snapshot.data!;
-                                      return Column(
-                                        children: [
-                                          const Text(
-                                            'Your Score:',
-                                            style: TextStyle(
-                                              fontSize: 18,
+                                    var _summary = snapshot.data!;
+                                    return Column(
+                                      children: [
+                                        const Text(
+                                          'Your Score:',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Text(
+                                          '${_summary.score} / ${_summary.submittedQuestions}',
+                                          style: const TextStyle(
+                                            fontSize: 24,
+                                            color: Colors.yellowAccent,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        _checkScore(_summary.score),
+                                        const SizedBox(height: 10),
+                                        Visibility(
+                                          visible: _summary.timeSpent != null,
+                                          child: Text(
+                                            'Time Spent : ${formatDuration(_summary.timeSpent!)} minutes',
+                                            style: const TextStyle(
+                                              fontSize: 14,
                                               color: Colors.white,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                          const SizedBox(height: 10),
-                                          Text(
-                                            '${_summary.score} / ${_summary.submittedQuestions}',
-                                            style: const TextStyle(
-                                              fontSize: 24,
-                                              color: Colors.yellowAccent,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 10),
-                                          _checkScore(_summary.score),
-                                          const SizedBox(height: 10),
-                                          Visibility(
-                                            visible: _summary.timeSpent != null,
-                                            child: Text(
-                                              'Time Spent : ${formatDuration(_summary.timeSpent!)} minutes',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 20),
-                                          ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  Colors.deepPurple,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 40,
-                                                vertical: 16,
-                                              ),
-                                              elevation: 5,
-                                            ),
-                                            onPressed: () {
-                                              Navigator.of(context).popUntil(
-                                                  (route) => route.isFirst);
-                                            },
-                                            child: const Text(
-                                              'CONTINUE',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    } else {
-                                      return const Text(
-                                        '⚠️ No data available!',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.redAccent,
-                                          fontWeight: FontWeight.bold,
                                         ),
-                                      );
-                                    }
+                                        const SizedBox(height: 20),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.deepPurple,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 40,
+                                              vertical: 16,
+                                            ),
+                                            elevation: 5,
+                                          ),
+                                          onPressed: () {
+                                            Provider.of<RootProvider>(context,
+                                                    listen: false)
+                                                .navigateToHome();
+                                          },
+                                          child: const Text(
+                                            'CONTINUE',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
                                   } else {
                                     return const Center(
                                         child: CircularProgressIndicator());
@@ -264,7 +272,7 @@ class _QuestionPageState extends State<QuestionPage> {
       timer!.cancel();
       timer = null;
     }
-    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       print(timer.tick);
       timeCounter!.add("${timer.tick.toString()}s");
     });
