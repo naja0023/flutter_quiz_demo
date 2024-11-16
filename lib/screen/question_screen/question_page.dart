@@ -248,7 +248,7 @@ class _QuestionPageState extends State<QuestionPage> {
         'Result: Excelent!!!!',
         style: TextStyle(
           fontSize: 18,
-          color: Colors.orange,
+          color: Colors.orange.shade400,
           fontWeight: FontWeight.w500,
         ),
       );
