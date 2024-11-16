@@ -100,69 +100,117 @@ class _QuestionPageState extends State<QuestionPage> {
                       ],
                     );
                   } else {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "QUESTION ENDING",
-                          style: TextStyle(fontSize: 18, color: Colors.white),
+                    return Center(
+                      child: Card(
+                        elevation: 8,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        SizedBox(height: 20),
-                        FutureBuilder(
-                          future: Provider.of<QuestionProvider>(context,
-                                  listen: false)
-                              .summaryQuestion(providers.sessionId),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return Text('error');
-                            }
-                            if (snapshot.connectionState ==
-                                ConnectionState.done) {
-                              if (snapshot.data != null) {
-                                var _summary = snapshot.data!;
-                                return Column(
-                                  children: [
-                                    Text('Score is',
-                                        style: TextStyle(color: Colors.white)),
-                                    Text(
-                                      '${_summary.score} / ${_summary.submittedQuestions}',
+                        color: Colors.blueAccent.withOpacity(0.8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "🎉 QUESTION ENDING 🎉",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              FutureBuilder(
+                                future: Provider.of<QuestionProvider>(context,
+                                        listen: false)
+                                    .summaryQuestion(providers.sessionId),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasError) {
+                                    return Text(
+                                      '⚠️ Error occurred!',
                                       style: TextStyle(
-                                          fontSize: 16, color: Colors.white),
-                                    ),
-                                    Text(
-                                      'Result : ${_checkScore(_summary.score)}',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.blue,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                        fontSize: 16,
+                                        color: Colors.redAccent,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    );
+                                  }
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.done) {
+                                    if (snapshot.data != null) {
+                                      var _summary = snapshot.data!;
+                                      return Column(
+                                        children: [
+                                          Text(
+                                            'Your Score:',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            '${_summary.score} / ${_summary.submittedQuestions}',
+                                            style: TextStyle(
+                                              fontSize: 24,
+                                              color: Colors.yellowAccent,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          _checkScore(_summary.score),
+                                          const SizedBox(height: 20),
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  Colors.deepPurple,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 40,
+                                                vertical: 16,
+                                              ),
+                                              elevation: 5,
+                                            ),
+                                            onPressed: () {
+                                              Navigator.of(context).popUntil(
+                                                  (route) => route.isFirst);
+                                            },
+                                            child: const Text(
+                                              'CONTINUE',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    } else {
+                                      return Text(
+                                        '⚠️ No data available!',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.redAccent,
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                        minimumSize: const Size(200, 50),
-                                      ),
-                                      onPressed: () {
-                                        Navigator.of(context)
-                                            .popUntil((route) => route.isFirst);
-                                      },
-                                      child: const Text(
-                                        'CONTINUE',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              } else {
-                                return Text('error',
-                                    style: TextStyle(color: Colors.white));
-                              }
-                            } else {
-                              return Center(child: CircularProgressIndicator());
-                            }
-                          },
+                                      );
+                                    }
+                                  } else {
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
+                      ),
                     );
                   }
                 } else {
@@ -176,13 +224,34 @@ class _QuestionPageState extends State<QuestionPage> {
     );
   }
 
-  String _checkScore(int score) {
+  Text _checkScore(int score) {
     if (score > 0 && score <= 4) {
-      return 'Fail';
+      return Text(
+        'Result: Fail',
+        style: TextStyle(
+          fontSize: 18,
+          color: Colors.red,
+          fontWeight: FontWeight.w500,
+        ),
+      );
     } else if (score > 4 && score <= 7) {
-      return 'Pass';
+      return Text(
+        'Result: Pass',
+        style: TextStyle(
+          fontSize: 18,
+          color: Colors.green,
+          fontWeight: FontWeight.w500,
+        ),
+      );
     } else {
-      return 'Excellent';
+      return Text(
+        'Result: Excelent!!!!',
+        style: TextStyle(
+          fontSize: 18,
+          color: Colors.orange,
+          fontWeight: FontWeight.w500,
+        ),
+      );
     }
   }
 }
