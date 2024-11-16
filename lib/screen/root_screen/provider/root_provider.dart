@@ -10,29 +10,39 @@ import 'package:flutter_welcome/screen/question_screen/question_page.dart';
 import 'package:flutter_welcome/service/http_service.dart';
 
 import '../../../di/get_it.dart';
+import '../root_page.dart';
 
 class RootProvider with ChangeNotifier {
   String get sessionId => _sessionId;
+  String get userName => _userName;
   late String _sessionId;
+  late String _userName;
   final _navigator = getIt<NavigationService>();
   final storage = FlutterSecureStorage();
-  void onStart() async {
+  void onStart(String name) async {
     var _response = await HttpService.request(
         method: HttpMethod.post,
         url: '${dotenv.get('BASE_URL')}/api/v1/Quiz/Session',
         log: 'post on /api/v1/Quiz/Session');
     var body = jsonDecode(_response.body);
+    _userName = name;
     _sessionId = body['data']['sessionId'];
-    await storage.write(key: "sessionId", value: _sessionId);
+
+    var recentUser = {
+      "userName": _userName,
+      "sessionId": _sessionId,
+    };
+    await storage.write(key: "recentUser", value: jsonEncode(recentUser));
     _navigator.navigatorKey.currentState!.push(QuestionPage.route());
   }
 
-  void onResume(String id) {
-    _sessionId = id;
+  void onResume(Map<String, dynamic> recentUser) {
+    _userName = recentUser['userName'];
+    _sessionId = recentUser['sessionId'];
     _navigator.navigatorKey.currentState!.push(QuestionPage.route());
   }
 
   void navigateToHome() {
-    _navigator.navigatorKey.currentState!.popUntil((route) => route.isFirst);
+       _navigator.navigatorKey.currentState!.pushAndRemoveUntil(RootPage.route(),(route) => route.isFirst);
   }
 }

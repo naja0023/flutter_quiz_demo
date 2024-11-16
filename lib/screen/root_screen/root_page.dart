@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_welcome/screen/history_screen/history_list_page.dart';
 import 'package:flutter_welcome/screen/question_screen/question_page.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +11,9 @@ import '../../di/get_it.dart';
 import 'provider/root_provider.dart';
 
 class RootPage extends StatefulWidget {
+   static PageRoute route(){
+    return MaterialPageRoute(builder: (context)=>const RootPage());
+   }
   const RootPage({super.key});
 
   @override
@@ -16,18 +21,32 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
+  final _textController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.deepPurple,
-          title: const Text(
-            'QUIZ ISLAND',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-            ),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'QUIZ ISLAND',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                ),
+              ),
+              IconButton(
+                  onPressed: () =>
+                      Navigator.of(context).push(HistoryListPage.route()),
+                  icon: const Icon(
+                    Icons.history,
+                    color: Colors.white,
+                  )),
+            ],
           ),
           elevation: 0,
         ),
@@ -47,44 +66,84 @@ class _RootPageState extends State<RootPage> {
                   future: _getCurrentUser(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Welcome to Quiz Island!',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 40),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.deepPurpleAccent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 40,
-                                vertical: 16,
-                              ),
-                              elevation: 10,
-                            ),
-                            onPressed: () {
-                              Provider.of<RootProvider>(context, listen: false)
-                                  .onStart();
-                            },
-                            child: const Text(
-                              'START',
+                      return Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Welcome to Quiz Island!',
                               style: TextStyle(
-                                fontSize: 20,
                                 color: Colors.white,
+                                fontSize: 28,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
-                        ],
+                            Padding(
+                              padding: const EdgeInsets.all(25),
+                              child: TextFormField(
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                controller: _textController,
+                                maxLength: 20,
+                                decoration: const InputDecoration(
+                                  labelText: 'Enter user name in English',
+                                  border: OutlineInputBorder(),
+                                  labelStyle:
+                                      const TextStyle(color: Colors.white),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                  ),
+                                  counterText: '',
+                                ),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[a-zA-Z ]')),
+                                ],
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter some text';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.deepPurpleAccent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 40,
+                                  vertical: 16,
+                                ),
+                                elevation: 10,
+                              ),
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  Provider.of<RootProvider>(context,
+                                          listen: false)
+                                      .onStart(_textController.text);
+                                }
+                              },
+                              child: const Text(
+                                'START',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     } else {
                       return const CircularProgressIndicator();
@@ -97,28 +156,9 @@ class _RootPageState extends State<RootPage> {
 }
 
 Future<void> _getCurrentUser() async {
-  // Create storage
-  final storage = FlutterSecureStorage();
-
-// Read value
-// String value = await storage.read(key: key);
-
-// Read all values
-  // Map<String, String> allValues = await storage.readAll();
-  // print(allValues);
-
-// Delete value
-// await storage.delete(key: key);
-
-// Delete all
-  // await storage.deleteAll();
-
-// Write value
-  // var data = {"id": "0001", "sessionId": "0123456789"};
-
-  // await storage.write(key: "sessionId", value: jsonEncode(data));
-  String? recentId = await storage.read(key: "sessionId");
-  if (recentId != null) {
+  final storage = const FlutterSecureStorage();
+  String? _recentUser = await storage.read(key: "recentUser");
+  if (_recentUser != null) {
     final navigator = getIt<NavigationService>();
     await showDialog(
       barrierDismissible: false,
@@ -169,13 +209,13 @@ Future<void> _getCurrentUser() async {
     ).then((value) {
       var decide = value as bool;
       if (decide) {
-        print(recentId);
+        print(_recentUser);
         Provider.of<RootProvider>(navigator.navigatorKey.currentContext!,
                 listen: false)
-            .onResume(recentId);
+            .onResume(jsonDecode(_recentUser));
       } else {
-        final storage = FlutterSecureStorage();
-        storage.delete(key: "sessionId");
+        final storage = const FlutterSecureStorage();
+        storage.delete(key: "recentUser");
       }
     });
   }

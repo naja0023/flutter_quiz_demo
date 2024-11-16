@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_welcome/di/get_it.dart';
 import 'package:flutter_welcome/screen/question_screen/provider/question_provider.dart';
+import 'package:flutter_welcome/screen/root_screen/model/user_model.dart';
 import 'package:flutter_welcome/screen/root_screen/provider/root_provider.dart';
 import 'package:provider/provider.dart';
 

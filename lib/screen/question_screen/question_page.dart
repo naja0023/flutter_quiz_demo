@@ -155,7 +155,8 @@ class _QuestionPageState extends State<QuestionPage> {
                               FutureBuilder(
                                 future: Provider.of<QuestionProvider>(context,
                                         listen: false)
-                                    .summaryQuestion(providers.sessionId),
+                                    .summaryQuestion(providers.sessionId,
+                                        providers.userName),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasError) {
                                     return const Column(
@@ -200,7 +201,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                         Visibility(
                                           visible: _summary.timeSpent != null,
                                           child: Text(
-                                            'Time Spent : ${formatDuration(_summary.timeSpent!)} minutes',
+                                            'Time Spent : ${_summary.timeSpent!} seconds',
                                             style: const TextStyle(
                                               fontSize: 14,
                                               color: Colors.white,
@@ -258,12 +259,6 @@ class _QuestionPageState extends State<QuestionPage> {
         );
       }),
     );
-  }
-
-  String formatDuration(int seconds) {
-    int minutes = seconds ~/ 60;
-    int remainingSeconds = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
   void _timeConter() {
