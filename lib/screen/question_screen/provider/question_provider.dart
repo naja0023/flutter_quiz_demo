@@ -72,6 +72,7 @@ class QuestionProvider with ChangeNotifier {
 Future<void> _showAlertDialog(bool ans) async {
   final _navigator = getIt<NavigationService>();
   await showDialog(
+    barrierDismissible: false,
     context: _navigator.navigatorKey.currentContext!,
     builder: (BuildContext context) {
       return AlertDialog(
