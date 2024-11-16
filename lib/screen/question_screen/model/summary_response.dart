@@ -6,10 +6,12 @@ part 'summary_response.g.dart';
 class SummaryData {
   final int submittedQuestions;
   final int score;
+  int? timeSpent;
 
   SummaryData({
     required this.submittedQuestions,
     required this.score,
+    this.timeSpent
   });
   factory SummaryData.fromJson(Map<String, dynamic> json) =>
       _$SummaryDataFromJson(json);

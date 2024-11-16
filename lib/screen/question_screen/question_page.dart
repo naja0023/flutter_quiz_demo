@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_welcome/screen/question_screen/provider/question_provider.dart';
 import 'package:flutter_welcome/screen/root_screen/provider/root_provider.dart';
@@ -15,8 +18,11 @@ class QuestionPage extends StatefulWidget {
 }
 
 class _QuestionPageState extends State<QuestionPage> {
+  Timer? timer;
+  StreamController? timeCounter;
   @override
   Widget build(BuildContext context) {
+    _timeConter();
     return PopScope(
       canPop: false,
       child:
@@ -50,14 +56,23 @@ class _QuestionPageState extends State<QuestionPage> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.data != null) {
                     return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        Container(
+                            margin: const EdgeInsets.only(
+                                top: 20, left: 8, right: 8, bottom: 8),
+                            alignment: Alignment.topRight,
+                            child: StreamBuilder(
+                                initialData: '0s',
+                                stream: timeCounter!.stream,
+                                builder: (context, snapshot) {
+                                  return Text(snapshot.data!);
+                                })),
                         Padding(
-                          padding: const EdgeInsets.only(
-                              top: 20, left: 8, right: 8, bottom: 8),
+                          padding: const EdgeInsets.all(10),
                           child: Text(
                             "QUESTION : ${snapshot.data?.title}",
-                            style: const TextStyle(fontSize: 18, color: Colors.white),
+                            style: const TextStyle(
+                                fontSize: 18, color: Colors.white),
                           ),
                         ),
                         Expanded(
@@ -82,8 +97,8 @@ class _QuestionPageState extends State<QuestionPage> {
                                   onPressed: () {
                                     Provider.of<QuestionProvider>(context,
                                             listen: false)
-                                        .onSubmitQuestion(
-                                            providers.sessionId, _choice)
+                                        .onSubmitQuestion(providers.sessionId,
+                                            _choice, _cancelTimer())
                                         .then((_) {
                                       setState(() {});
                                     });
@@ -100,6 +115,7 @@ class _QuestionPageState extends State<QuestionPage> {
                       ],
                     );
                   } else {
+                    _cancelTimer();
                     return Center(
                       child: Card(
                         elevation: 8,
@@ -161,6 +177,18 @@ class _QuestionPageState extends State<QuestionPage> {
                                           ),
                                           const SizedBox(height: 10),
                                           _checkScore(_summary.score),
+                                          const SizedBox(height: 10),
+                                          Visibility(
+                                            visible: _summary.timeSpent != null,
+                                            child: Text(
+                                              'Time Spent : ${formatDuration(_summary.timeSpent!)} minutes',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
                                           const SizedBox(height: 20),
                                           ElevatedButton(
                                             style: ElevatedButton.styleFrom(
@@ -222,6 +250,35 @@ class _QuestionPageState extends State<QuestionPage> {
         );
       }),
     );
+  }
+
+  String formatDuration(int seconds) {
+    int minutes = seconds ~/ 60;
+    int remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+  void _timeConter() {
+    timeCounter = StreamController<String>();
+    if (timer != null) {
+      timer!.cancel();
+      timer = null;
+    }
+    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      print(timer.tick);
+      timeCounter!.add("${timer.tick.toString()}s");
+    });
+  }
+
+  int _cancelTimer() {
+    int count = 0;
+    timeCounter = null;
+    if (timer != null) {
+      count = timer!.tick;
+      timer!.cancel();
+      timer = null;
+    }
+    return count;
   }
 
   Text _checkScore(int score) {

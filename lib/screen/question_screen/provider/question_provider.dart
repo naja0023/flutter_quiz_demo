@@ -29,13 +29,13 @@ class QuestionProvider with ChangeNotifier {
     }
   }
 
-  Future<void> onSubmitQuestion(String sessionId, Choice choice) async {
+  Future<void> onSubmitQuestion(String sessionId, Choice choice,int timeCounter) async {
     try {
       var _reqBody = {
         "sessionId": sessionId,
         "questionId": choice.questionId,
         "choiceId": choice.choiceId,
-        "timeSpent": 0
+        "timeSpent": timeCounter
       };
       var _response = await HttpService.request(
           method: HttpMethod.post,
