@@ -33,7 +33,7 @@ class _QuestionPageState extends State<QuestionPage> {
           body: Container(
             width: double.maxFinite,
             height: double.maxFinite,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Colors.blueAccent, Colors.purpleAccent],
                 begin: Alignment.topLeft,
@@ -45,7 +45,7 @@ class _QuestionPageState extends State<QuestionPage> {
                   .onReqQuestion(providers.sessionId),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Text('error');
+                  return const Text('error');
                 }
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.data != null) {
@@ -57,7 +57,7 @@ class _QuestionPageState extends State<QuestionPage> {
                               top: 20, left: 8, right: 8, bottom: 8),
                           child: Text(
                             "QUESTION : ${snapshot.data?.title}",
-                            style: TextStyle(fontSize: 18, color: Colors.white),
+                            style: const TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),
                         Expanded(
@@ -112,7 +112,7 @@ class _QuestionPageState extends State<QuestionPage> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
+                              const Text(
                                 "🎉 QUESTION ENDING 🎉",
                                 style: TextStyle(
                                   fontSize: 20,
@@ -127,7 +127,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                     .summaryQuestion(providers.sessionId),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasError) {
-                                    return Text(
+                                    return const Text(
                                       '⚠️ Error occurred!',
                                       style: TextStyle(
                                         fontSize: 16,
@@ -142,7 +142,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                       var _summary = snapshot.data!;
                                       return Column(
                                         children: [
-                                          Text(
+                                          const Text(
                                             'Your Score:',
                                             style: TextStyle(
                                               fontSize: 18,
@@ -153,7 +153,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                           const SizedBox(height: 10),
                                           Text(
                                             '${_summary.score} / ${_summary.submittedQuestions}',
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontSize: 24,
                                               color: Colors.yellowAccent,
                                               fontWeight: FontWeight.bold,
@@ -192,7 +192,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                         ],
                                       );
                                     } else {
-                                      return Text(
+                                      return const Text(
                                         '⚠️ No data available!',
                                         style: TextStyle(
                                           fontSize: 16,
@@ -202,7 +202,7 @@ class _QuestionPageState extends State<QuestionPage> {
                                       );
                                     }
                                   } else {
-                                    return Center(
+                                    return const Center(
                                         child: CircularProgressIndicator());
                                   }
                                 },
@@ -214,7 +214,7 @@ class _QuestionPageState extends State<QuestionPage> {
                     );
                   }
                 } else {
-                  return Center(child: const CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
               },
             ),
@@ -226,7 +226,7 @@ class _QuestionPageState extends State<QuestionPage> {
 
   Text _checkScore(int score) {
     if (score > 0 && score <= 4) {
-      return Text(
+      return const Text(
         'Result: Fail',
         style: TextStyle(
           fontSize: 18,
@@ -235,7 +235,7 @@ class _QuestionPageState extends State<QuestionPage> {
         ),
       );
     } else if (score > 4 && score <= 7) {
-      return Text(
+      return const Text(
         'Result: Pass',
         style: TextStyle(
           fontSize: 18,

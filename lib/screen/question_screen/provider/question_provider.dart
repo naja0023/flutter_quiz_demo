@@ -76,7 +76,7 @@ Future<void> _showAlertDialog(bool ans) async {
     context: _navigator.navigatorKey.currentContext!,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Center(
+        title: const Center(
             child: Text(
           'Your answer is',
           style: TextStyle(fontSize: 20),
