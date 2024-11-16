@@ -12,7 +12,7 @@ class RootPage extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           title: const Text(
-            'QUIZE ISLAND',
+            'QUIZ ISLAND',
           ),
         ),
         body: Container(

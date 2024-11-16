@@ -25,49 +25,49 @@ class _QuestionPageState extends State<QuestionPage> {
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: const Text(
-              'QUIZE ISLAND',
+              'QUIZ ISLAND',
             ),
           ),
-          body: FutureBuilder(
-              future: Provider.of<QuestionProvider>(context, listen: false)
-                  .onReqQuestion(providers.sessionId),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Text('error');
-                }
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.data != null) {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("QUESTION : ${snapshot.data?.title}"),
-                        Expanded(
-                          child: ListView.builder(
-                              itemCount: snapshot.data!.choices.length,
-                              itemBuilder: (context, index) {
-                                final _choice = snapshot.data!.choices[index];
-                                return TextButton(
-                                    onPressed: () {
-                                      Provider.of<QuestionProvider>(context,
-                                              listen: false)
-                                          .onSubmitQuestion(
-                                              providers.sessionId, _choice)
-                                          .then((_) {
-                                        setState(() {});
-                                      });
-                                    },
-                                    child: Text('${_choice.title}'));
-                              }),
-                        ),
-                      ],
-                    );
-                  } else {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("QUESTION ENDING"),
-                        Expanded(
-                          child: FutureBuilder(
+          body: Container(
+            width: double.maxFinite,
+            height: double.maxFinite,
+            child: FutureBuilder(
+                future: Provider.of<QuestionProvider>(context, listen: false)
+                    .onReqQuestion(providers.sessionId),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('error');
+                  }
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.data != null) {
+                      return Column(
+                        children: [
+                          Text("QUESTION : ${snapshot.data?.title}"),
+                          Expanded(
+                            child: ListView.builder(
+                                itemCount: snapshot.data!.choices.length,
+                                itemBuilder: (context, index) {
+                                  final _choice = snapshot.data!.choices[index];
+                                  return TextButton(
+                                      onPressed: () {
+                                        Provider.of<QuestionProvider>(context,
+                                                listen: false)
+                                            .onSubmitQuestion(
+                                                providers.sessionId, _choice)
+                                            .then((_) {
+                                          setState(() {});
+                                        });
+                                      },
+                                      child: Text('${_choice.title}'));
+                                }),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return Column(
+                        children: [
+                          Text("QUESTION ENDING"),
+                          FutureBuilder(
                               future: Provider.of<QuestionProvider>(context,
                                       listen: false)
                                   .summaryQuestion(providers.sessionId),
@@ -80,6 +80,8 @@ class _QuestionPageState extends State<QuestionPage> {
                                   if (snapshot.data != null) {
                                     var _summary = snapshot.data!;
                                     return Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
                                         Text('Score is'),
                                         Text(
@@ -98,17 +100,17 @@ class _QuestionPageState extends State<QuestionPage> {
                                     return Text('error');
                                   }
                                 } else {
-                                  return CircularProgressIndicator();
+                                  return Center(child: CircularProgressIndicator());
                                 }
-                              }),
-                        )
-                      ],
-                    );
+                              })
+                        ],
+                      );
+                    }
+                  } else {
+                    return Center(child: const CircularProgressIndicator());
                   }
-                } else {
-                  return const CircularProgressIndicator();
-                }
-              }),
+                }),
+          ),
         );
       }),
     );
