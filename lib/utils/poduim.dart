@@ -15,15 +15,15 @@ class Participant {
 }
 
 class PodiumWidget extends StatelessWidget {
-  final Participant firstPlace;
-  final Participant secondPlace;
-  final Participant thirdPlace;
+  Participant? firstPlace;
+  Participant? secondPlace;
+  Participant? thirdPlace;
 
-  const PodiumWidget({
+  PodiumWidget({
     Key? key,
-    required this.firstPlace,
-    required this.secondPlace,
-    required this.thirdPlace,
+    this.firstPlace,
+    this.secondPlace,
+    this.thirdPlace,
   }) : super(key: key);
 
   @override
@@ -32,10 +32,15 @@ class PodiumWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        _buildPodiumPlace(2, secondPlace, Colors.grey.shade500, 150, context),
-        _buildPodiumPlace(1, firstPlace, Colors.yellow.shade600, 200, context),
-        _buildPodiumPlace(
-            3, thirdPlace, Colors.orangeAccent.shade400, 120, context),
+        if (secondPlace != null)
+          _buildPodiumPlace(
+              2, secondPlace!, Colors.grey.shade500, 150, context),
+        if (firstPlace != null)
+          _buildPodiumPlace(
+              1, firstPlace!, Colors.yellow.shade600, 200, context),
+        if (thirdPlace != null)
+          _buildPodiumPlace(
+              3, thirdPlace!, Colors.orangeAccent.shade400, 120, context),
       ],
     );
   }

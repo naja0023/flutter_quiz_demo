@@ -24,9 +24,60 @@ class _HistoryListPageState extends State<HistoryListPage> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.deepPurple,
-        title: const Text(
-          'TOP 10 OF SCORE 🎉',
-          style: TextStyle(color: Colors.white),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const SizedBox(),
+            const Text(
+              'TOP 10 OF SCORE 🎉',
+              style: TextStyle(color: Colors.white),
+            ),
+            IconButton(
+                onPressed: () async {
+                  bool decide = await showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Center(
+                            child: Text(
+                          'Do you want to clear history data?',
+                          style: TextStyle(fontSize: 20),
+                        )),
+                        actionsAlignment: MainAxisAlignment.center,
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(true);
+                            },
+                            child: const Text(
+                              'Yes',
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                            },
+                            child: const Text(
+                              'No',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                  if (decide) {
+                    await _cleartHistory();
+                    setState(() {});
+                  }
+                },
+                icon: const Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                ))
+          ],
         ),
       ),
       body: RefreshIndicator(
@@ -45,25 +96,38 @@ class _HistoryListPageState extends State<HistoryListPage> {
                         height: MediaQuery.of(context).size.height * 0.3,
                         margin: const EdgeInsets.only(bottom: 5),
                         child: Builder(builder: (context) {
-                          final first = snapshot.data![0];
-                          final second = snapshot.data![1];
-                          final third = snapshot.data![2];
+                          UserData? first;
+                          UserData? second;
+                          UserData? third;
+                          try {
+                            first = snapshot.data![0];
+                            second = snapshot.data![1];
+                            third = snapshot.data![2];
+                          } catch (e) {
+                            print(e);
+                          }
                           return PodiumWidget(
-                            firstPlace: Participant(
-                                name: first.name,
-                                score: first.data.score,
-                                timeUsed: '${first.data.timeSpent} secons',
-                                registrationDate: first.dateSubmit),
-                            secondPlace: Participant(
-                                name: second.name,
-                                score: second.data.score,
-                                timeUsed: '${second.data.timeSpent} secons',
-                                registrationDate: second.dateSubmit),
-                            thirdPlace: Participant(
-                                name: third.name,
-                                score: third.data.score,
-                                timeUsed: '${third.data.timeSpent} secons',
-                                registrationDate: third.dateSubmit),
+                            firstPlace: first != null
+                                ? Participant(
+                                    name: first.name,
+                                    score: first.data.score,
+                                    timeUsed: '${first.data.timeSpent} secons',
+                                    registrationDate: first.dateSubmit)
+                                : null,
+                            secondPlace: second != null
+                                ? Participant(
+                                    name: second.name,
+                                    score: second.data.score,
+                                    timeUsed: '${second.data.timeSpent} secons',
+                                    registrationDate: second.dateSubmit)
+                                : null,
+                            thirdPlace: third != null
+                                ? Participant(
+                                    name: third.name,
+                                    score: third.data.score,
+                                    timeUsed: '${third.data.timeSpent} secons',
+                                    registrationDate: third.dateSubmit)
+                                : null,
                           );
                         }),
                       ),
@@ -162,7 +226,7 @@ class _HistoryListPageState extends State<HistoryListPage> {
 }
 
 Future<List<UserData>?> _getHistory() async {
-  final storage = const FlutterSecureStorage();
+  final storage = FlutterSecureStorage();
   var all = await storage.read(key: 'history');
   if (all != null) {
     List rawData = jsonDecode(all);
@@ -174,4 +238,9 @@ Future<List<UserData>?> _getHistory() async {
     }
     return listUser;
   }
+}
+
+Future<void> _cleartHistory() async {
+  final storage = FlutterSecureStorage();
+  await storage.delete(key: 'history');
 }
